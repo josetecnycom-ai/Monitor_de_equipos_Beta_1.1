@@ -81,12 +81,22 @@
   box-sizing: border-box !important;
 }
 
-/* Regla crítica para asegurar que cualquier elemento con atributo hidden NUNCA se muestre */
+/* Regla absoluta e infalible para ocultar elementos con atributo hidden */
 .zen-app [hidden],
 .zen-app *[hidden],
-.zen-app [hidden="true"],
-.zen-app *[hidden="true"] {
+.zen-app #statusMsg[hidden],
+.zen-app .zen-alert[hidden] {
   display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 .zen-app > *:not(style):not(script):not(.zen-summary):not(.zen-ph) {
@@ -275,21 +285,27 @@
   white-space: nowrap !important;
 }
 
-/* ── Zenith Summary Stat Cards — Tamaño exactamente uniforme ── */
+/* ── Zenith Summary Stat Cards — Ancho 100% con 5 columnas exactamente iguales ── */
 .zen-app .zen-summary {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: stretch !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   gap: 12px !important;
-  margin-bottom: 16px !important;
+  margin: 0 0 16px 0 !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
+@media (max-width: 1024px) {
+  .zen-app .zen-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 640px) {
+  .zen-app .zen-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 .zen-app .zen-card {
-  flex: 1 1 0px !important;
-  width: 0 !important;
-  min-width: 0 !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: flex-start !important;
@@ -299,7 +315,8 @@
   padding: 14px 16px !important;
   box-shadow: var(--sh1) !important;
   border-top: 4px solid var(--g200) !important;
-  min-height: 96px !important;
+  min-height: 94px !important;
+  width: 100% !important;
   box-sizing: border-box !important;
   transition: transform .12s ease, box-shadow .12s ease !important;
 }
@@ -416,35 +433,33 @@
 
 /* ── Alerts & Status Messages ────────────────────── */
 .zen-app .zen-alert {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 16px 20px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: var(--g700) !important;
-  background: var(--g0) !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g700);
+  background: var(--g0);
 }
 .zen-app .zen-alert.error {
-  color: var(--err) !important;
-  background: var(--err-bg) !important;
+  color: var(--err);
+  background: var(--err-bg);
 }
 .zen-app .zen-spin {
-  display: block !important;
-  width: 18px !important; height: 18px !important;
-  flex-shrink: 0 !important;
-  border: 2px solid rgba(0,100,168,.2) !important;
-  border-top-color: var(--p) !important;
-  border-radius: 50% !important;
-  animation: zenSpin .75s linear infinite !important;
+  display: block;
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  border: 2px solid rgba(0,100,168,.2);
+  border-top-color: var(--p);
+  border-radius: 50%;
+  animation: zenSpin .75s linear infinite;
 }
 @keyframes zenSpin { to { transform: rotate(360deg); } }
 
 @media (max-width: 900px) {
   .zen-app { padding: 12px !important; }
-  .zen-app .zen-summary { flex-wrap: wrap !important; }
-  .zen-app .zen-card { flex: 1 1 calc(50% - 12px) !important; min-width: 140px !important; }
   .zen-app .zen-toolbar { flex-direction: column !important; align-items: stretch !important; }
   .zen-app .zen-toolbar-right { justify-content: space-between !important; }
 }
@@ -532,8 +547,8 @@
     thresholdHoursMachine: 48,
     lookbackDaysEquipped: 60,
     autoRefreshMinutes: 5,
-    storageKeyGroup: 'coldChainSelectedGroup',
-    defaultGroupName: 'Cadena de frío'
+    storageKeyGroup: 'coldChainSelectedGroup_v1_1',
+    defaultGroupName: 'Cold Chain'
   };
 
   // Termógrafo + sondas remotas
@@ -655,16 +670,16 @@
         return;
       }
       el.statusMsg.hidden = false;
-      el.statusMsg.style.display = 'flex';
+      el.statusMsg.style.removeProperty('display');
       el.statusMsg.className = 'zen-alert' + (type === 'error' ? ' error' : '');
       el.statusMsg.innerHTML = (type === 'loading' ? '<span class="zen-spin"></span>' : '') + '<span>' + escapeHtml(message) + '</span>';
       el.resultsTable.hidden = true;
-      el.resultsTable.style.display = 'none';
+      el.summaryBar.hidden = true;
     }
 
     function hideStatus() {
       el.statusMsg.hidden = true;
-      el.statusMsg.style.display = 'none';
+      el.statusMsg.style.setProperty('display', 'none', 'important');
       el.statusMsg.innerHTML = '';
     }
 
@@ -690,15 +705,21 @@
         });
         el.groupSelector.innerHTML = optionsHtml;
         
-        // Restaurar selección o seleccionar por defecto
+        // Buscar preferentemente el grupo "Cold Chain" (o "Cadena de frío")
+        var defaultTargetGrp = validGroups.find(function(g) {
+          var n = (g.name || '').toLowerCase().trim();
+          return n === 'cold chain' || n === 'cadena de frío' || n === 'cadena de frio';
+        });
+
+        // Restaurar selección previa o seleccionar automáticamente Cold Chain
         var savedGroup = localStorage.getItem(CONFIG.storageKeyGroup);
         if (savedGroup && groupsDict[savedGroup]) {
           el.groupSelector.value = savedGroup;
-        } else {
-          var defaultGrp = validGroups.find(function(g) { return g.name === CONFIG.defaultGroupName; });
-          if (defaultGrp) {
-            el.groupSelector.value = defaultGrp.id;
-          }
+        } else if (defaultTargetGrp) {
+          el.groupSelector.value = defaultTargetGrp.id;
+          localStorage.setItem(CONFIG.storageKeyGroup, defaultTargetGrp.id);
+        } else if (validGroups.length > 0) {
+          el.groupSelector.value = validGroups[0].id;
         }
         
         el.refreshBtn.disabled = false;
@@ -1027,7 +1048,6 @@
       el.sumCargo.textContent = counts.cargo;
       el.sumMachine.textContent = counts.machine;
       el.summaryBar.hidden = false;
-      el.summaryBar.style.display = 'flex';
     }
 
     function cellTime(ms, now, thresholdHours, explicitErrorText) {
@@ -1046,9 +1066,8 @@
 
       if (visible.length === 0) {
         el.resultsTable.hidden = true;
-        el.resultsTable.style.display = 'none';
         el.statusMsg.hidden = false;
-        el.statusMsg.style.display = 'flex';
+        el.statusMsg.style.removeProperty('display');
         el.statusMsg.className = 'zen-alert';
         el.statusMsg.innerHTML = '<span>No hay activos que coincidan con los filtros actuales.</span>';
         return;
@@ -1089,7 +1108,6 @@
 
       el.resultsTable.innerHTML = thead + tbody;
       el.resultsTable.hidden = false;
-      el.resultsTable.style.display = '';
     }
 
     function exportToCSV() {
