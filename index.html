@@ -285,40 +285,56 @@
   white-space: nowrap !important;
 }
 
-/* ── Zenith Summary Stat Cards — Ancho 100% con 5 columnas exactamente iguales ── */
+/* ── Zenith Summary Stat Cards — 5 tarjetas repartidas al 100% del ancho, centradas ── */
 .zen-app .zen-summary {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: space-between !important;
   gap: 12px !important;
   margin: 0 0 16px 0 !important;
   width: 100% !important;
+  max-width: 100% !important;
   box-sizing: border-box !important;
 }
-@media (max-width: 1024px) {
-  .zen-app .zen-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-@media (max-width: 640px) {
-  .zen-app .zen-summary {
-    grid-template-columns: 1fr !important;
-  }
+.zen-app .zen-summary[hidden] {
+  display: none !important;
 }
 
 .zen-app .zen-card {
   display: flex !important;
   flex-direction: column !important;
-  justify-content: flex-start !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
   background: var(--g0) !important;
   border: 1px solid var(--g200) !important;
   border-radius: var(--r8) !important;
   padding: 14px 16px !important;
   box-shadow: var(--sh1) !important;
   border-top: 4px solid var(--g200) !important;
-  min-height: 94px !important;
-  width: 100% !important;
+  min-height: 80px !important;
+  /* 5 tarjetas iguales: (100% - 4 huecos de 12px) / 5 */
+  flex: 0 0 calc((100% - 48px) / 5) !important;
+  width: calc((100% - 48px) / 5) !important;
+  max-width: calc((100% - 48px) / 5) !important;
+  min-width: 0 !important;
   box-sizing: border-box !important;
   transition: transform .12s ease, box-shadow .12s ease !important;
+}
+@media (max-width: 1024px) {
+  .zen-app .zen-card {
+    flex: 0 0 calc((100% - 24px) / 3) !important;
+    width: calc((100% - 24px) / 3) !important;
+    max-width: calc((100% - 24px) / 3) !important;
+  }
+}
+@media (max-width: 640px) {
+  .zen-app .zen-card {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
 .zen-app .zen-card:hover {
   box-shadow: var(--sh2) !important;
@@ -330,14 +346,19 @@
   font-family: var(--fn-mono) !important;
   line-height: 1.1 !important;
   margin-bottom: 6px !important;
+  text-align: center !important;
 }
 .zen-app .zen-card .zen-lbl {
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
   color: var(--g500) !important;
-  text-transform: uppercase !important;
-  letter-spacing: .04em !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
   line-height: 1.35 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
 }
 .zen-app .zen-card.ok      { border-top-color: var(--ok) !important; }
 .zen-app .zen-card.go      { border-top-color: var(--err) !important; }
