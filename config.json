@@ -1,0 +1,17 @@
+{
+  "name": "Monitor de Frigoríficos - Cadena de Frío BETA",
+  "supportEmail": "soporte@tecnoflotas.com",
+  "version": "1.1.0-beta",
+  "items": [
+    {
+      "url": "https://josetecnycom-ai.github.io/Monitor_de_equipos_Beta_1.1/index.html",
+      "path": "ActivityLink/",
+      "menuName": {
+        "en": "Cold Chain Health Monitor (Beta)",
+        "es": "Monitor de Frigoríficos (Beta)"
+      },
+      "icon": "icon.svg"
+    }
+  ],
+  "isSigned": false
+}

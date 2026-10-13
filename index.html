@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Frigoríficos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="equipmentHealthMonitor" class="zen-app">
+<style>
+/* ====================================================
+   GEOTAB ZENITH DESIGN SYSTEM — vanilla CSS port
+   Fuente: Nunito Sans | Color primario: #0064A8 (Geotab Blue)
+   Storybook: https://developers.geotab.com/zenith-storybook/
+   ==================================================== */
+.zen-app {
+  --p:       #0064A8; /* Geotab Primary Blue */
+  --p-dk:    #005490; /* Blue Hover */
+  --p-lt:    #E6F0F8; /* Soft blue tint */
+  --p-bd:    #BAD4EC; /* Soft blue border */
+
+  --g0:      #FFFFFF; /* White */
+  --g50:     #F5F5F5; /* Background */
+  --g100:    #EBEBEB; /* Light dividers */
+  --g200:    #D6D6D6; /* Border standard */
+  --g300:    #BDBDBD; /* Muted text */
+  --g500:    #757575; /* Secondary text */
+  --g700:    #424242; /* Subtitles and headers */
+  --g900:    #212121; /* High-contrast text */
+
+  /* Zenith Alert & Status Tokens */
+  --ok:      #2E7D32; /* Zenith Green */
+  --ok-bg:   #EDF7ED;
+  --ok-bd:   #C8E6C9;
+
+  --err:     #D32F2F; /* Zenith Red */
+  --err-bg:  #FFEBEE;
+  --err-bd:  #FFCDD2;
+
+  --warn:    #ED6C02; /* Zenith Orange */
+  --warn-bg: #FFF4E5;
+  --warn-bd: #FFE0B2;
+
+  --amb:     #CA8A04; /* Zenith Amber */
+  --amb-bg:  #FEF9E7;
+  --amb-bd:  #FDE68A;
+
+  --mach:    #4F46E5; /* Machine Indigo */
+  --mach-bg: #EEEDFD;
+  --mach-bd: #C7D2FE;
+
+  --r4: 4px;
+  --r6: 6px;
+  --r8: 8px;
+  --r100: 100px;
+
+  --sh1: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+  --sh2: 0 4px 12px rgba(0,0,0,.12);
+  --fn: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fn-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Layout — full width inside MyGeotab host frame */
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+
+  font-family: var(--fn) !important;
+  font-size: 14px !important;
+  color: var(--g900) !important;
+  background: var(--g50) !important;
+  line-height: 1.5 !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.zen-app *, .zen-app *::before, .zen-app *::after {
+  box-sizing: border-box !important;
+}
+
+.zen-app > *:not(style):not(script) { display: block !important; }
+.zen-app style, .zen-app script { display: none !important; }
+
+/* ── Page Header ─────────────────────────────────── */
+.zen-app .zen-ph {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  margin: 0 0 16px 0 !important;
+  padding: 0 0 16px 0 !important;
+  border-bottom: 1px solid var(--g200) !important;
+  width: 100% !important;
+  flex-wrap: wrap !important;
+}
+.zen-app .zen-ph-left {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+}
+.zen-app .zen-ph-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 42px !important; height: 42px !important;
+  flex-shrink: 0 !important;
+  background: var(--p) !important;
+  border-radius: var(--r6) !important;
+  box-shadow: var(--sh1) !important;
+}
+.zen-app .zen-ph-text { display: block !important; }
+.zen-app .zen-ph-text h1 {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  font-size: 20px !important; font-weight: 800 !important;
+  color: var(--g900) !important; margin: 0 !important;
+  line-height: 1.25 !important;
+}
+/* Geotab Zenith Beta Badge */
+.zen-app .zen-beta {
+  display: inline-flex !important; align-items: center !important;
+  padding: 2px 8px !important;
+  background: var(--p) !important; color: #fff !important;
+  font-size: 10px !important; font-weight: 700 !important;
+  letter-spacing: .07em !important; text-transform: uppercase !important;
+  border-radius: var(--r100) !important;
+  vertical-align: middle !important;
+}
+.zen-app .zen-ph-text p {
+  display: block !important;
+  font-size: 13px !important; color: var(--g500) !important;
+  margin: 4px 0 0 !important;
+}
+
+/* ── Buttons (Zenith) ────────────────────────────── */
+.zen-app .zen-btn {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  font-family: var(--fn) !important; font-size: 13px !important;
+  font-weight: 700 !important; line-height: 1 !important;
+  padding: 0 16px !important; height: 36px !important;
+  border-radius: var(--r4) !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: background .12s, border-color .12s, box-shadow .12s !important;
+  white-space: nowrap !important; text-decoration: none !important;
+  vertical-align: middle !important;
+}
+.zen-app .zen-btn-p {
+  background: var(--p) !important; color: #fff !important;
+}
+.zen-app .zen-btn-p:hover:not(:disabled) {
+  background: var(--p-dk) !important;
+}
+.zen-app .zen-btn-p:disabled {
+  opacity: .5 !important; cursor: not-allowed !important;
+}
+.zen-app .zen-btn-s {
+  background: var(--g0) !important; color: var(--g700) !important;
+  border-color: var(--g200) !important;
+}
+.zen-app .zen-btn-s:hover:not(:disabled) {
+  background: var(--g50) !important; border-color: var(--g300) !important; color: var(--g900) !important;
+}
+.zen-app .zen-btn:focus-visible {
+  outline: 2px solid var(--p) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── Panel & Toolbar ─────────────────────────────── */
+.zen-app .zen-panel {
+  display: block !important;
+  width: 100% !important;
+  background: var(--g0) !important;
+  border: 1px solid var(--g200) !important;
+  border-radius: var(--r8) !important;
+  padding: 14px 18px !important;
+  margin: 0 0 16px 0 !important;
+  box-shadow: var(--sh1) !important;
+}
+
+.zen-app .zen-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
+.zen-app .zen-toolbar-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+.zen-app .zen-toolbar-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Form inputs & selects */
+.zen-app .zen-in, .zen-app .zen-select {
+  display: inline-block !important;
+  height: 36px !important;
+  padding: 0 12px !important;
+  font-family: var(--fn) !important; font-size: 13px !important;
+  color: var(--g900) !important; background: var(--g0) !important;
+  border: 1px solid var(--g200) !important;
+  border-radius: var(--r4) !important; outline: none !important;
+  transition: border-color .12s, box-shadow .12s !important;
+  min-width: 200px !important;
+}
+.zen-app .zen-select {
+  cursor: pointer !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  padding-right: 32px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.zen-app .zen-in:hover, .zen-app .zen-select:hover {
+  border-color: var(--g300) !important;
+}
+.zen-app .zen-in:focus, .zen-app .zen-select:focus {
+  border-color: var(--p) !important;
+  box-shadow: 0 0 0 2px rgba(0,100,168,.2) !important;
+}
+
+/* Toggles & Checkboxes */
+.zen-app .zen-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--g700) !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+}
+.zen-app .zen-toggle input[type="checkbox"] {
+  cursor: pointer !important;
+  width: 16px !important; height: 16px !important;
+  margin: 0 !important;
+  accent-color: var(--p) !important;
+}
+.zen-app .zen-updated {
+  font-size: 12px !important;
+  color: var(--g500) !important;
+  white-space: nowrap !important;
+}
+
+/* ── Zenith Summary Stat Cards ───────────────────── */
+.zen-app .zen-summary {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 12px !important;
+  margin-bottom: 16px !important;
+  width: 100% !important;
+}
+@media (max-width: 1024px) {
+  .zen-app .zen-summary { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (max-width: 680px) {
+  .zen-app .zen-summary { grid-template-columns: 1fr !important; }
+}
+
+.zen-app .zen-card {
+  display: block !important;
+  background: var(--g0) !important;
+  border: 1px solid var(--g200) !important;
+  border-radius: var(--r8) !important;
+  padding: 14px 16px !important;
+  box-shadow: var(--sh1) !important;
+  border-top: 3px solid var(--g200) !important;
+  transition: transform .12s ease, box-shadow .12s ease !important;
+}
+.zen-app .zen-card .zen-num {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  color: var(--g900) !important;
+  font-family: var(--fn-mono) !important;
+  line-height: 1.1 !important;
+}
+.zen-app .zen-card .zen-lbl {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--g500) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .05em !important;
+  margin-top: 5px !important;
+}
+.zen-app .zen-card.ok      { border-top-color: var(--ok) !important; }
+.zen-app .zen-card.go      { border-top-color: var(--err) !important; }
+.zen-app .zen-card.iox     { border-top-color: var(--warn) !important; }
+.zen-app .zen-card.cargo   { border-top-color: var(--amb) !important; }
+.zen-app .zen-card.machine { border-top-color: var(--mach) !important; }
+
+/* ── Table & Sticky Header ───────────────────────── */
+.zen-app .zen-table-panel {
+  display: block !important;
+  background: var(--g0) !important;
+  border: 1px solid var(--g200) !important;
+  border-radius: var(--r8) !important;
+  box-shadow: var(--sh1) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.zen-app .zen-table-scroll {
+  overflow: auto !important;
+  max-height: calc(100vh - 310px) !important;
+  width: 100% !important;
+}
+.zen-app table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  font-size: 13px !important;
+  margin: 0 !important;
+}
+.zen-app th, .zen-app td {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid var(--g100) !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+.zen-app th {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .05em !important;
+  color: var(--g700) !important;
+  background: var(--g50) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid var(--g200) !important;
+}
+.zen-app tbody tr:hover td {
+  background: var(--p-lt) !important;
+}
+.zen-app tbody tr:nth-child(even) td {
+  background: #FCFCFD !important;
+}
+.zen-app tbody tr:nth-child(even):hover td {
+  background: var(--p-lt) !important;
+}
+.zen-app .device-name {
+  font-weight: 700 !important;
+  color: var(--g900) !important;
+}
+
+/* ── Zenith Badges / Status Chips ────────────────── */
+.zen-app .zen-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 10px !important;
+  border-radius: var(--r100) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+.zen-app .zen-badge.ok {
+  background: var(--ok-bg) !important; color: var(--ok) !important; border: 1px solid var(--ok-bd) !important;
+}
+.zen-app .zen-badge.go {
+  background: var(--err-bg) !important; color: var(--err) !important; border: 1px solid var(--err-bd) !important;
+}
+.zen-app .zen-badge.iox {
+  background: var(--warn-bg) !important; color: var(--warn) !important; border: 1px solid var(--warn-bd) !important;
+}
+.zen-app .zen-badge.cargo {
+  background: var(--amb-bg) !important; color: var(--amb) !important; border: 1px solid var(--amb-bd) !important;
+}
+.zen-app .zen-badge.machine {
+  background: var(--mach-bg) !important; color: var(--mach) !important; border: 1px solid var(--mach-bd) !important;
+}
+
+.zen-app .cell-muted { color: var(--g500) !important; font-size: 12px !important; }
+.zen-app .cell-val { font-family: var(--fn-mono) !important; font-weight: 700 !important; color: var(--g900) !important; }
+.zen-app .cell-na { color: var(--g300) !important; font-style: italic !important; font-size: 12px !important; }
+.zen-app .temp-val { display: inline-block !important; min-width: 45px !important; }
+
+/* ── Alerts & Status Messages ────────────────────── */
+.zen-app .zen-alert {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 14px 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--g700) !important;
+}
+.zen-app .zen-alert.error {
+  color: var(--err) !important;
+  background: var(--err-bg) !important;
+}
+.zen-app .zen-spin {
+  display: block !important;
+  width: 18px !important; height: 18px !important;
+  flex-shrink: 0 !important;
+  border: 2px solid rgba(0,100,168,.2) !important;
+  border-top-color: var(--p) !important;
+  border-radius: 50% !important;
+  animation: zenSpin .75s linear infinite !important;
+}
+@keyframes zenSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .zen-app { padding: 12px !important; }
+  .zen-app .zen-toolbar { flex-direction: column !important; align-items: stretch !important; }
+  .zen-app .zen-toolbar-right { justify-content: space-between !important; }
+}
+</style>
+
+  <!-- PAGE HEADER -->
+  <header class="zen-ph">
+    <div class="zen-ph-left">
+      <div class="zen-ph-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+        </svg>
+      </div>
+      <div class="zen-ph-text">
+        <h1>Monitor de Frigoríficos <span class="zen-beta">Beta</span></h1>
+        <p>Salud de la cadena de frío &middot; dispositivo principal &middot; termógrafo/sondas &middot; máquina de frío</p>
+      </div>
+    </div>
+    <div class="zen-ph-actions">
+      <button type="button" id="refreshBtn" class="zen-btn zen-btn-p" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- TOOLBAR / FILTERS -->
+  <section class="zen-panel">
+    <div class="zen-toolbar">
+      <div class="zen-toolbar-left">
+        <select id="groupSelector" class="zen-select">
+          <option value="">Cargando grupos...</option>
+        </select>
+        <input type="text" id="searchInput" class="zen-in" placeholder="Buscar activo por nombre...">
+        <label class="zen-toggle">
+          <input type="checkbox" id="onlyProblemsToggle">
+          Mostrar solo activos con problema
+        </label>
+        <label class="zen-toggle">
+          <input type="checkbox" id="hideNoMachineToggle">
+          Ocultar sin máquina de frío
+        </label>
+      </div>
+      <div class="zen-toolbar-right">
+        <button type="button" id="exportBtn" class="zen-btn zen-btn-s">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Exportar CSV
+        </button>
+        <span class="zen-updated" id="updatedAt"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUMMARY STAT CARDS -->
+  <div class="zen-summary" id="summaryBar" hidden>
+    <div class="zen-card ok"><div class="zen-num" id="sumOk">0</div><div class="zen-lbl">OK</div></div>
+    <div class="zen-card go"><div class="zen-num" id="sumGo">0</div><div class="zen-lbl">Dispositivo sin comunicar</div></div>
+    <div class="zen-card iox"><div class="zen-num" id="sumIox">0</div><div class="zen-lbl">IOX no detectado</div></div>
+    <div class="zen-card cargo"><div class="zen-num" id="sumCargo">0</div><div class="zen-lbl">Termógrafo/Sondas con problema</div></div>
+    <div class="zen-card machine"><div class="zen-num" id="sumMachine">0</div><div class="zen-lbl">Máquina de frío sin datos</div></div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <section class="zen-table-panel">
+    <div class="zen-table-scroll">
+      <table id="resultsTable" hidden></table>
+    </div>
+    <div class="zen-alert" id="statusMsg"><span class="zen-spin"></span><span>Inicializando...</span></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var CONFIG = {
+    thresholdHoursGo: 48,
+    thresholdHoursCargo: 48,
+    thresholdHoursMachine: 48,
+    lookbackDaysEquipped: 60,
+    autoRefreshMinutes: 5,
+    storageKeyGroup: 'coldChainSelectedGroup',
+    defaultGroupName: 'Cadena de frío'
+  };
+
+  // Termógrafo + sondas remotas
+  var CARGO_DIAGNOSTICS = [
+    { id: 'ThermographTemperature1Id', label: 'Termógrafo 1' },
+    { id: 'ThermographTemperature2Id', label: 'Termógrafo 2' },
+    { id: 'ThermographStatusId', label: 'Estado termógrafo' },
+    { id: 'RemoteProbe1TemperatureId', label: 'Sonda remota 1' },
+    { id: 'RemoteProbe2TemperatureId', label: 'Sonda remota 2' },
+    { id: 'RemoteProbe3TemperatureId', label: 'Sonda remota 3' }
+  ];
+  
+  var THERMOGRAPH_STATUS_DIAGNOSTIC_ID = 'ThermographStatusId';
+  var THERMOGRAPH_STATUS_NAMES = {
+    0: 'Deshabilitado',
+    1: 'Activado',
+    2: 'Desactivado',
+    3: 'Error'
+  };
+
+  var THERMO_MODEL_ID = 'a5IuZRNSymkS_lkDlsgRgpg';
+  var MODEL_NAMES = {
+    2: 'Rey térmico', 3: 'Portador', 4: 'Transcan', 5: 'Euroscan',
+    10: 'Termotrans', 11: 'Datacold y euroscan', 13: 'Transcan 2',
+    14: 'Hecho sistemi', 15: 'Apache'
+  };
+
+  // IOX Ureader e IOX Cold
+  var IOX_DIAGNOSTICS = [
+    { id: 'DiagnosticExternalDeviceIntendiaId', label: 'uReader', family: 'uReader' },
+    { id: 'azRjqdVaIxkSmbO5V-0khgA', label: 'uReader (Intendia) estado', family: 'uReader' },
+    { id: 'DiagnosticExternalDeviceIOXColdChainId', label: 'IOX-COLD', family: 'IOX-COLD' },
+    { id: 'DiagnosticIOXColdConnectionStatusId', label: 'IOX-COLD conexión', family: 'IOX-COLD' },
+    { id: 'DiagnosticIOXColdRuggedConnectionStatusId', label: 'IOX-COLD RUGGED conexión', family: 'IOX-COLD' }
+  ];
+  
+  var IOX_EQUIPPED_DIAGNOSTIC_IDS = ['DiagnosticExternalDeviceIntendiaId', 'azRjqdVaIxkSmbO5V-0khgA', 'DiagnosticExternalDeviceIOXColdChainId'];
+  var IOX_CONNECTION_VALUE_IDS = ['DiagnosticIOXColdConnectionStatusId', 'DiagnosticIOXColdRuggedConnectionStatusId'];
+  var IOX_DISCONNECTED_VALUE = 0;
+
+  // Máquina de frío
+  var MACHINE_DIAGNOSTICS = [
+    { id: 'RefrigerationUnitSetTemperatureZone1Id', label: 'Consigna zona 1' },
+    { id: 'RefrigerationUnitSetTemperatureZone2Id', label: 'Consigna zona 2' },
+    { id: 'RefrigerationUnitTemperatureZone1Id', label: 'Retorno zona 1' },
+    { id: 'RefrigerationUnitTemperatureZone2Id', label: 'Retorno zona 2' },
+    { id: 'RefrigerationUnitStatusId', label: 'Estado unidad' }
+  ];
+  var MACHINE_EQUIPPED_DIAGNOSTIC_ID = 'RefrigerationUnitStatusId';
+
+  function monitorEngine() {
+    var api = null;
+    var el = {};
+    var allRows = [];
+    var autoRefreshTimer = null;
+    var groupsDict = {};
+
+    function $(id) { return document.getElementById(id); }
+
+    function cacheElements() {
+      el.refreshBtn = $('refreshBtn');
+      el.groupSelector = $('groupSelector');
+      el.searchInput = $('searchInput');
+      el.exportBtn = $('exportBtn');
+      el.summaryBar = $('summaryBar');
+      el.sumOk = $('sumOk');
+      el.sumGo = $('sumGo');
+      el.sumIox = $('sumIox');
+      el.sumCargo = $('sumCargo');
+      el.sumMachine = $('sumMachine');
+      el.onlyProblemsToggle = $('onlyProblemsToggle');
+      el.hideNoMachineToggle = $('hideNoMachineToggle');
+      el.updatedAt = $('updatedAt');
+      el.resultsTable = $('resultsTable');
+      el.statusMsg = $('statusMsg');
+    }
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+    function formatDateTimeEs(ms) {
+      if (!ms) return null;
+      var d = new Date(ms);
+      return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    }
+
+    function hoursAgo(ms, now) {
+      if (!ms) return null;
+      return (now - ms) / 3600000;
+    }
+
+    function isFresh(ms, thresholdHours, now) {
+      if (!ms) return false;
+      return hoursAgo(ms, now) <= thresholdHours;
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str === null || str === undefined ? '' : String(str);
+      return div.innerHTML;
+    }
+
+    function formatTemp(val) {
+      if (val === null || val === undefined) return '<span class="cell-na">&mdash;</span>';
+      return '<span class="cell-val temp-val">' + Number(val).toFixed(1) + ' °C</span>';
+    }
+
+    function formatExportTime(ms, now, thresholdHours, explicitErrorText) {
+      if (explicitErrorText) {
+        return explicitErrorText + (ms ? " (ult. " + formatDateTimeEs(ms) + ")" : "");
+      }
+      if (!ms) return "N/D";
+      var h = hoursAgo(ms, now);
+      return "hace " + (h < 1 ? Math.round(h * 60) + ' min' : Math.round(h) + ' h');
+    }
+
+    function showStatus(type, message) {
+      el.statusMsg.hidden = false;
+      el.statusMsg.className = 'zen-alert' + (type === 'error' ? ' error' : '');
+      el.statusMsg.innerHTML = (type === 'loading' ? '<span class="zen-spin"></span>' : '') + '<span>' + escapeHtml(message) + '</span>';
+      el.resultsTable.hidden = true;
+      el.summaryBar.hidden = true;
+    }
+
+    function hideStatus() {
+      el.statusMsg.hidden = true;
+    }
+
+    // ---- Carga de Grupos ----
+    function loadGroups() {
+      showStatus('loading', 'Cargando grupos...');
+      api.call('Get', { typeName: 'Group' }, function (groups) {
+        groupsDict = {};
+        var validGroups = [];
+        
+        groups.forEach(function(g) {
+          groupsDict[g.id] = g;
+          if (g.name && g.id !== 'GroupCompanyId') {
+            validGroups.push(g);
+          }
+        });
+        
+        validGroups.sort(function(a, b) { return a.name.localeCompare(b.name); });
+        
+        var optionsHtml = '<option value="">-- Selecciona un grupo --</option>';
+        validGroups.forEach(function(g) {
+          optionsHtml += '<option value="' + escapeHtml(g.id) + '">' + escapeHtml(g.name) + '</option>';
+        });
+        el.groupSelector.innerHTML = optionsHtml;
+        
+        // Restaurar selección o seleccionar por defecto
+        var savedGroup = localStorage.getItem(CONFIG.storageKeyGroup);
+        if (savedGroup && groupsDict[savedGroup]) {
+          el.groupSelector.value = savedGroup;
+        } else {
+          var defaultGrp = validGroups.find(function(g) { return g.name === CONFIG.defaultGroupName; });
+          if (defaultGrp) {
+            el.groupSelector.value = defaultGrp.id;
+          }
+        }
+        
+        el.refreshBtn.disabled = false;
+        
+        if (el.groupSelector.value) {
+          loadPanel();
+        } else {
+          showStatus(null, 'Por favor, selecciona un grupo para monitorizar.');
+        }
+        
+      }, function(err) {
+        console.error('Error cargando grupos', err);
+        showStatus('error', 'No se pudieron cargar los grupos.');
+      });
+    }
+
+    // ---- Carga de datos ----
+    function loadPanel() {
+      var groupId = el.groupSelector.value;
+      if (!groupId) {
+        showStatus(null, 'Por favor, selecciona un grupo.');
+        return;
+      }
+      
+      localStorage.setItem(CONFIG.storageKeyGroup, groupId);
+      el.refreshBtn.disabled = true;
+      showStatus('loading', 'Obteniendo activos del grupo...');
+
+      // Obtenemos dispositivos para filtrar a los que pertenecen directamente al grupo
+      api.call('Get', { typeName: 'Device', search: { groups: [{ id: groupId }] } }, function (devices) {
+        var nowTime = new Date().getTime();
+        var directDevices = devices.filter(function(d) {
+          var inGroup = d.groups && d.groups.some(function(g) { return g.id === groupId; });
+          var isActive = !d.activeTo || (new Date(d.activeTo).getTime() > nowTime);
+          return inGroup && isActive;
+        });
+        
+        if (directDevices.length === 0) {
+          el.refreshBtn.disabled = false;
+          allRows = [];
+          renderSummary(allRows);
+          renderTable(allRows, new Date());
+          showStatus(null, 'No hay activos configurados directamente en este grupo.');
+          return;
+        }
+        
+        fetchSignals(directDevices, groupId);
+      }, function (err) {
+        el.refreshBtn.disabled = false;
+        console.error('Error obteniendo activos', err);
+        showStatus('error', 'No se pudo obtener la lista de activos. Inténtalo de nuevo.');
+      });
+    }
+
+    function fetchSignals(devices, groupId) {
+      var now = new Date();
+      showStatus('loading', 'Analizando señales de la flota (' + devices.length + ' activos)...');
+      
+      var freshFrom = new Date(now.getTime() - CONFIG.thresholdHoursCargo * 3600000); // 48h
+      var equippedFrom = new Date(now.getTime() - CONFIG.lookbackDaysEquipped * 86400000); // 60 días
+      var fields = { fields: ['device', 'dateTime', 'data'] };
+      var devSearch = { groups: [{ id: groupId }] };
+
+      var calls = [];
+      
+      // 0: DeviceStatusInfo (para Dispositivo Principal)
+      calls.push(['Get', {
+        typeName: 'DeviceStatusInfo',
+        search: { deviceSearch: devSearch },
+        propertySelector: { fields: ['device', 'isDeviceCommunicating', 'dateTime'] }
+      }]);
+      
+      // 1-6: termógrafo/sondas (frescura)
+      CARGO_DIAGNOSTICS.forEach(function (d) {
+        calls.push(['Get', {
+          typeName: 'StatusData',
+          search: { diagnosticSearch: { id: d.id }, deviceSearch: devSearch, fromDate: freshFrom.toISOString(), toDate: now.toISOString() },
+          propertySelector: fields
+        }]);
+      });
+      
+      // 7: Modelo de termógrafo (equipado - 60 días)
+      calls.push(['Get', {
+        typeName: 'StatusData',
+        search: { diagnosticSearch: { id: THERMO_MODEL_ID }, deviceSearch: devSearch, fromDate: equippedFrom.toISOString(), toDate: now.toISOString() },
+        propertySelector: fields
+      }]);
+
+      // 8-12: IOX Ureader + IOX Cold (frescura)
+      IOX_DIAGNOSTICS.forEach(function (d) {
+        calls.push(['Get', {
+          typeName: 'StatusData',
+          search: { diagnosticSearch: { id: d.id }, deviceSearch: devSearch, fromDate: freshFrom.toISOString(), toDate: now.toISOString() },
+          propertySelector: fields
+        }]);
+      });
+      
+      // 13-14: IOX (¿equipado?, 60 días)
+      IOX_EQUIPPED_DIAGNOSTIC_IDS.forEach(function (diagId) {
+        calls.push(['Get', {
+          typeName: 'StatusData',
+          search: { diagnosticSearch: { id: diagId }, deviceSearch: devSearch, fromDate: equippedFrom.toISOString(), toDate: now.toISOString() },
+          propertySelector: { fields: ['device', 'data'] }
+        }]);
+      });
+      
+      // 15-19: máquina de frío (frescura)
+      MACHINE_DIAGNOSTICS.forEach(function (d) {
+        calls.push(['Get', {
+          typeName: 'StatusData',
+          search: { diagnosticSearch: { id: d.id }, deviceSearch: devSearch, fromDate: freshFrom.toISOString(), toDate: now.toISOString() },
+          propertySelector: fields
+        }]);
+      });
+      
+      // 20: máquina de frío (¿equipado?, 60 días)
+      calls.push(['Get', {
+        typeName: 'StatusData',
+        search: { diagnosticSearch: { id: MACHINE_EQUIPPED_DIAGNOSTIC_ID }, deviceSearch: devSearch, fromDate: equippedFrom.toISOString(), toDate: now.toISOString() },
+        propertySelector: { fields: ['device'] }
+      }]);
+      
+      // 21: Trip (último viaje)
+      calls.push(['Get', {
+        typeName: 'Trip',
+        search: { deviceSearch: devSearch, fromDate: freshFrom.toISOString(), toDate: now.toISOString() },
+        propertySelector: { fields: ['device', 'stop'] }
+      }]);
+
+      api.multiCall(calls, function (results) {
+        el.refreshBtn.disabled = false;
+        processResults(devices, results || [], now);
+      }, function (err) {
+        el.refreshBtn.disabled = false;
+        console.error('Error consultando señales de la flota', err);
+        var msg = err ? (err.message || JSON.stringify(err)) : 'Error desconocido';
+        showStatus('error', 'Error API: ' + msg);
+      });
+    }
+
+    function maxByDevice(records, dateField, into) {
+      var map = into || {};
+      (records || []).forEach(function (r) {
+        if (!r || !r.device || !r.device.id || !r[dateField]) return;
+        var t = new Date(r[dateField]).getTime();
+        if (!map[r.device.id] || t > map[r.device.id]) map[r.device.id] = t;
+      });
+      return map;
+    }
+
+    function latestByDevice(records, dateField, into) {
+      var map = into || {};
+      (records || []).forEach(function (r) {
+        if (!r || !r.device || !r.device.id || !r[dateField]) return;
+        var t = new Date(r[dateField]).getTime();
+        if (!map[r.device.id] || t > map[r.device.id].time) map[r.device.id] = { time: t, data: r.data };
+      });
+      return map;
+    }
+
+    function toIdSet(records) {
+      var set = {};
+      (records || []).forEach(function (r) { if (r && r.device && r.device.id) set[r.device.id] = true; });
+      return set;
+    }
+
+    function arrayByDiagId(arrays, diagnostics, diagId) {
+      var i = diagnostics.map(function (d) { return d.id; }).indexOf(diagId);
+      return i === -1 ? [] : arrays[i];
+    }
+
+    function processResults(devices, results, now) {
+      var idx = 0;
+      var deviceStatusRecords = results[idx++] || [];
+      var cargoArrays = CARGO_DIAGNOSTICS.map(function () { return results[idx++] || []; });
+      var thermoModelRecords = results[idx++] || [];
+      var ioxArrays = IOX_DIAGNOSTICS.map(function () { return results[idx++] || []; });
+      var ioxEquippedRecords = IOX_EQUIPPED_DIAGNOSTIC_IDS.map(function () { return results[idx++] || []; });
+      var machineArrays = MACHINE_DIAGNOSTICS.map(function () { return results[idx++] || []; });
+      var machineEquippedRecords = results[idx++] || [];
+      var tripRecords = results[idx++] || [];
+
+      // Procesar Dispositivo: extraemos lastCommunicatedUtc o dateTime
+      var goLastSeen = {};
+      deviceStatusRecords.forEach(function(dsi) {
+         if (dsi && dsi.device && dsi.device.id) {
+           var dt = dsi.lastCommunicatedUtc || dsi.dateTime;
+           if (dt) goLastSeen[dsi.device.id] = new Date(dt).getTime();
+         }
+      });
+
+      var cargoLastSeen = {};
+      cargoArrays.forEach(function (arr) { maxByDevice(arr, 'dateTime', cargoLastSeen); });
+      
+      var thermoModelLatest = latestByDevice(thermoModelRecords, 'dateTime', {});
+      
+      // Temperaturas exactas actuales (últimos valores)
+      var tempZ1Latest = latestByDevice(arrayByDiagId(cargoArrays, CARGO_DIAGNOSTICS, 'ThermographTemperature1Id'), 'dateTime', {});
+      var tempZ2Latest = latestByDevice(arrayByDiagId(cargoArrays, CARGO_DIAGNOSTICS, 'ThermographTemperature2Id'), 'dateTime', {});
+
+      // Determinar familia IOX equipada (uReader o IOX-COLD)
+      var ioxEquippedDetails = {};
+      ioxEquippedRecords.forEach(function (arr, i) {
+        var diagId = IOX_EQUIPPED_DIAGNOSTIC_IDS[i];
+        var family = (diagId === 'DiagnosticExternalDeviceIOXColdChainId') ? 'IOX-COLD' : 'uReader';
+        arr.forEach(function(r) {
+          if (r && r.device && r.device.id) {
+            ioxEquippedDetails[r.device.id] = family;
+          }
+        });
+      });
+
+      var ioxLastSeen = {};
+      ioxArrays.forEach(function (arr) { maxByDevice(arr, 'dateTime', ioxLastSeen); });
+      
+      var machineLastSeen = {};
+      machineArrays.forEach(function (arr) { maxByDevice(arr, 'dateTime', machineLastSeen); });
+      var machineEquippedSet = toIdSet(machineEquippedRecords);
+      var tripLastSeen = maxByDevice(tripRecords, 'stop');
+
+      var ioxConnectionLatest = {};
+      IOX_CONNECTION_VALUE_IDS.forEach(function (diagId) {
+        latestByDevice(arrayByDiagId(ioxArrays, IOX_DIAGNOSTICS, diagId), 'dateTime', ioxConnectionLatest);
+      });
+      
+      var thermoStatusLatest = latestByDevice(arrayByDiagId(cargoArrays, CARGO_DIAGNOSTICS, THERMOGRAPH_STATUS_DIAGNOSTIC_ID), 'dateTime', {});
+
+      // Construir filas para todos los dispositivos directos
+      allRows = devices.map(function (dev) {
+        var goTime = goLastSeen[dev.id] || null;
+        var cargoTime = cargoLastSeen[dev.id] || null;
+        
+        var thermoExplicitStatus = null;
+        if (thermoStatusLatest[dev.id] && thermoStatusLatest[dev.id].data !== undefined) {
+           var ts = thermoStatusLatest[dev.id].data;
+           if (ts === 0 || ts === 2 || ts === 3) {
+             thermoExplicitStatus = THERMOGRAPH_STATUS_NAMES[ts] || 'Error';
+           }
+        }
+        
+        var modelId = thermoModelLatest[dev.id] ? thermoModelLatest[dev.id].data : null;
+        var modelName = modelId && MODEL_NAMES[modelId] ? MODEL_NAMES[modelId] : (modelId ? 'Mod. ' + modelId : null);
+        
+        var t1 = tempZ1Latest[dev.id] ? tempZ1Latest[dev.id].data : null;
+        var t2 = tempZ2Latest[dev.id] ? tempZ2Latest[dev.id].data : null;
+
+        var ioxFamily = ioxEquippedDetails[dev.id] || null;
+        var ioxTime = ioxLastSeen[dev.id] || null;
+        var ioxExplicitDisconnected = !!(ioxConnectionLatest[dev.id] && ioxConnectionLatest[dev.id].data === IOX_DISCONNECTED_VALUE);
+        
+        var machineEquipped = !!machineEquippedSet[dev.id];
+        var machineTime = machineLastSeen[dev.id] || null;
+        var tripTime = tripLastSeen[dev.id] || null;
+        
+        var status = computeStatus(goTime, ioxFamily, ioxTime, ioxExplicitDisconnected, cargoTime, thermoExplicitStatus, machineEquipped, machineTime, now);
+        
+        return {
+          device: dev, status: status,
+          goTime: goTime, 
+          cargoTime: cargoTime, thermoExplicitStatus: thermoExplicitStatus,
+          modelName: modelName, tempZ1: t1, tempZ2: t2,
+          ioxFamily: ioxFamily, ioxTime: ioxTime, ioxExplicitDisconnected: ioxExplicitDisconnected,
+          machineEquipped: machineEquipped, machineTime: machineTime,
+          tripTime: tripTime
+        };
+      });
+
+      allRows.sort(function (a, b) {
+        var order = { go: 0, iox: 1, cargo: 2, machine: 3, ok: 4 };
+        if (order[a.status.level] !== order[b.status.level]) return order[a.status.level] - order[b.status.level];
+        return a.device.name.localeCompare(b.device.name);
+      });
+
+      hideStatus();
+      renderSummary(allRows);
+      renderTable(allRows, now);
+      el.updatedAt.textContent = 'Actualizado ' + formatDateTimeEs(now.getTime());
+    }
+
+    function computeStatus(goTime, ioxFamily, ioxTime, ioxExplicitDisconnected, cargoTime, thermoExplicitStatus, machineEquipped, machineTime, now) {
+      if (!isFresh(goTime, CONFIG.thresholdHoursGo, now)) {
+        return { level: 'go', label: 'Dispositivo sin comunicar' };
+      }
+      if (ioxExplicitDisconnected || (ioxFamily && !isFresh(ioxTime, CONFIG.thresholdHoursCargo, now))) {
+        return { level: 'iox', label: 'IOX no detectado' };
+      }
+      if (thermoExplicitStatus) {
+        return { level: 'cargo', label: 'Termógrafo: ' + thermoExplicitStatus };
+      }
+      if (!isFresh(cargoTime, CONFIG.thresholdHoursCargo, now)) {
+        return { level: 'cargo', label: 'Sin termógrafo/sondas' };
+      }
+      if (machineEquipped && !isFresh(machineTime, CONFIG.thresholdHoursMachine, now)) {
+        return { level: 'machine', label: 'Máquina de frío sin datos' };
+      }
+      return { level: 'ok', label: 'OK' };
+    }
+
+    function getVisibleRows() {
+      var onlyProblems = el.onlyProblemsToggle.checked;
+      var hideNoMachine = el.hideNoMachineToggle.checked;
+      var searchVal = el.searchInput.value.toLowerCase().trim();
+      
+      return allRows.filter(function (r) {
+        if (hideNoMachine && !r.machineEquipped) return false;
+        if (onlyProblems && r.status.level === 'ok') return false;
+        if (searchVal && r.device.name.toLowerCase().indexOf(searchVal) === -1) return false;
+        return true;
+      });
+    }
+
+    function renderSummary(rows) {
+      var counts = { ok: 0, go: 0, iox: 0, cargo: 0, machine: 0 };
+      var hideNoMachine = el.hideNoMachineToggle.checked;
+      var searchVal = el.searchInput.value.toLowerCase().trim();
+      
+      rows.forEach(function (r) { 
+        if (hideNoMachine && !r.machineEquipped) return;
+        if (searchVal && r.device.name.toLowerCase().indexOf(searchVal) === -1) return;
+        counts[r.status.level]++; 
+      });
+      
+      el.sumOk.textContent = counts.ok;
+      el.sumGo.textContent = counts.go;
+      el.sumIox.textContent = counts.iox;
+      el.sumCargo.textContent = counts.cargo;
+      el.sumMachine.textContent = counts.machine;
+      el.summaryBar.hidden = false;
+    }
+
+    function cellTime(ms, now, thresholdHours, explicitErrorText) {
+      if (explicitErrorText) {
+        return '<span class="cell-muted" style="color:var(--err); font-weight:700;">' + explicitErrorText + '</span><br>' +
+               '<span class="cell-muted" style="font-size:11px;">(últ. dato: ' + (ms ? formatDateTimeEs(ms) : 'N/D') + ')</span>';
+      }
+      if (!ms) return '<span class="cell-na">&mdash;</span>';
+      var h = hoursAgo(ms, now);
+      var text = h < 1 ? Math.round(h * 60) + ' min' : Math.round(h) + ' h';
+      return '<span class="cell-muted" title="' + formatDateTimeEs(ms) + '">hace ' + text + '</span>';
+    }
+
+    function renderTable(rows, now) {
+      var visible = getVisibleRows();
+
+      if (visible.length === 0) {
+        el.resultsTable.hidden = true;
+        showStatus(null, '');
+        el.statusMsg.hidden = false;
+        el.statusMsg.className = 'zen-alert';
+        el.statusMsg.innerHTML = '<span>No hay activos que coincidan con los filtros actuales.</span>';
+        return;
+      }
+      
+      hideStatus();
+
+      var thead = '<thead><tr>' +
+        '<th>Activo</th><th>Estado</th><th>Dispositivo</th><th>IOX</th><th>Termógrafo/Sondas</th><th>Modelo Term.</th><th>Temp Z1</th><th>Temp Z2</th><th>Máquina de frío</th><th>Último viaje</th>' +
+        '</tr></thead>';
+
+      var tbody = '<tbody>' + visible.map(function (r) {
+        var ioxCell = r.ioxFamily
+          ? '<div><span class="cell-val">' + r.ioxFamily + '</span><br>' + cellTime(r.ioxTime, now, CONFIG.thresholdHoursCargo, r.ioxExplicitDisconnected ? 'Desconectado' : null) + '</div>'
+          : '<span class="cell-na">Sin histórico IOX</span>';
+          
+        var machineCell = r.machineEquipped
+          ? cellTime(r.machineTime, now, CONFIG.thresholdHoursMachine)
+          : '<span class="cell-na">Sin máquina conectada</span>';
+          
+        var modelCell = r.modelName 
+          ? '<span class="cell-val">' + escapeHtml(r.modelName) + '</span>' 
+          : '<span class="cell-na">&mdash;</span>';
+
+        return '<tr>' +
+          '<td class="device-name">' + escapeHtml(r.device.name) + '</td>' +
+          '<td><span class="zen-badge ' + r.status.level + '">' + escapeHtml(r.status.label) + '</span></td>' +
+          '<td>' + cellTime(r.goTime, now, CONFIG.thresholdHoursGo) + '</td>' +
+          '<td>' + ioxCell + '</td>' +
+          '<td>' + cellTime(r.cargoTime, now, CONFIG.thresholdHoursCargo, r.thermoExplicitStatus) + '</td>' +
+          '<td>' + modelCell + '</td>' +
+          '<td>' + formatTemp(r.tempZ1) + '</td>' +
+          '<td>' + formatTemp(r.tempZ2) + '</td>' +
+          '<td>' + machineCell + '</td>' +
+          '<td>' + cellTime(r.tripTime, now, 999999) + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody>';
+
+      el.resultsTable.innerHTML = thead + tbody;
+      el.resultsTable.hidden = false;
+    }
+
+    function exportToCSV() {
+      if (!allRows || allRows.length === 0) return;
+      var now = new Date();
+      var visible = getVisibleRows();
+      
+      var csvContent = "\uFEFF"; // Añadir BOM UTF-8 para Excel
+      csvContent += "Activo;Estado;Dispositivo;IOX;Termógrafo/Sondas;Modelo Term.;Temp Z1;Temp Z2;Máquina de frío;Último viaje\r\n";
+      
+      visible.forEach(function(r) {
+        var name = r.device.name.replace(/;/g, ',');
+        var state = r.status.label.replace(/;/g, ',');
+        var goText = formatExportTime(r.goTime, now, CONFIG.thresholdHoursGo);
+        
+        var ioxText = 'Sin histórico IOX';
+        if (r.ioxFamily) {
+          ioxText = r.ioxFamily + " (" + formatExportTime(r.ioxTime, now, CONFIG.thresholdHoursCargo, r.ioxExplicitDisconnected ? 'Desconectado' : null) + ")";
+        }
+        
+        var cargoText = formatExportTime(r.cargoTime, now, CONFIG.thresholdHoursCargo, r.thermoExplicitStatus);
+        var model = r.modelName ? r.modelName.replace(/;/g, ',') : 'N/D';
+        var t1 = r.tempZ1 !== null && r.tempZ1 !== undefined ? r.tempZ1 : 'N/D';
+        var t2 = r.tempZ2 !== null && r.tempZ2 !== undefined ? r.tempZ2 : 'N/D';
+        var machine = r.machineEquipped ? formatExportTime(r.machineTime, now, CONFIG.thresholdHoursMachine) : 'Sin máquina conectada';
+        var trip = r.tripTime ? formatExportTime(r.tripTime, now, 999999) : 'N/D';
+
+        var row = [name, state, goText, ioxText, cargoText, model, t1, t2, machine, trip];
+        csvContent += row.join(";") + "\r\n";
+      });
+
+      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement("a");
+      var url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "Monitor_Frigorificos_" + formatDateTimeEs(now.getTime()).replace(/[\/\s:]/g, '_') + ".csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function wireEvents() {
+      el.refreshBtn.addEventListener('click', loadPanel);
+      el.groupSelector.addEventListener('change', loadPanel);
+      
+      el.searchInput.addEventListener('input', function() {
+        renderSummary(allRows);
+        renderTable(allRows, new Date());
+      });
+      
+      el.exportBtn.addEventListener('click', exportToCSV);
+      
+      el.onlyProblemsToggle.addEventListener('change', function () { 
+        renderTable(allRows, new Date()); 
+      });
+      
+      el.hideNoMachineToggle.addEventListener('change', function () { 
+        renderSummary(allRows);
+        renderTable(allRows, new Date()); 
+      });
+    }
+
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(loadPanel, CONFIG.autoRefreshMinutes * 60000);
+    }
+
+    return {
+      initialize: function (freshApi, freshState, callback) {
+        api = freshApi;
+        cacheElements();
+        wireEvents();
+        loadGroups();
+        startAutoRefresh();
+        if (typeof callback === 'function') callback();
+      },
+      focus: function (freshApi, freshState) {
+        api = freshApi;
+        if (el.groupSelector && el.groupSelector.value) {
+          loadPanel();
+        }
+      },
+      blur: function () {
+        if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+      }
+    };
+  }
+
+  // Registrar en ambos namespaces para compatibilidad máxima
+  geotab.addin.coldChainHealthMonitor = monitorEngine;
+  geotab.addin.equipmentHealthMonitor = monitorEngine;
+})();
+</script>
+</body>
+</html>
