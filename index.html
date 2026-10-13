@@ -81,7 +81,17 @@
   box-sizing: border-box !important;
 }
 
-.zen-app > *:not(style):not(script) { display: block !important; }
+/* Regla crítica para asegurar que cualquier elemento con atributo hidden NUNCA se muestre */
+.zen-app [hidden],
+.zen-app *[hidden],
+.zen-app [hidden="true"],
+.zen-app *[hidden="true"] {
+  display: none !important;
+}
+
+.zen-app > *:not(style):not(script):not(.zen-summary):not(.zen-ph) {
+  display: block !important;
+}
 .zen-app style, .zen-app script { display: none !important; }
 
 /* ── Page Header ─────────────────────────────────── */
@@ -265,30 +275,36 @@
   white-space: nowrap !important;
 }
 
-/* ── Zenith Summary Stat Cards ───────────────────── */
+/* ── Zenith Summary Stat Cards — Tamaño exactamente uniforme ── */
 .zen-app .zen-summary {
-  display: grid !important;
-  grid-template-columns: repeat(5, 1fr) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
   gap: 12px !important;
   margin-bottom: 16px !important;
   width: 100% !important;
-}
-@media (max-width: 1024px) {
-  .zen-app .zen-summary { grid-template-columns: repeat(3, 1fr) !important; }
-}
-@media (max-width: 680px) {
-  .zen-app .zen-summary { grid-template-columns: 1fr !important; }
+  box-sizing: border-box !important;
 }
 
 .zen-app .zen-card {
-  display: block !important;
+  flex: 1 1 0px !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
   background: var(--g0) !important;
   border: 1px solid var(--g200) !important;
   border-radius: var(--r8) !important;
   padding: 14px 16px !important;
   box-shadow: var(--sh1) !important;
-  border-top: 3px solid var(--g200) !important;
+  border-top: 4px solid var(--g200) !important;
+  min-height: 96px !important;
+  box-sizing: border-box !important;
   transition: transform .12s ease, box-shadow .12s ease !important;
+}
+.zen-app .zen-card:hover {
+  box-shadow: var(--sh2) !important;
 }
 .zen-app .zen-card .zen-num {
   font-size: 26px !important;
@@ -296,14 +312,15 @@
   color: var(--g900) !important;
   font-family: var(--fn-mono) !important;
   line-height: 1.1 !important;
+  margin-bottom: 6px !important;
 }
 .zen-app .zen-card .zen-lbl {
   font-size: 11px !important;
   font-weight: 700 !important;
   color: var(--g500) !important;
   text-transform: uppercase !important;
-  letter-spacing: .05em !important;
-  margin-top: 5px !important;
+  letter-spacing: .04em !important;
+  line-height: 1.35 !important;
 }
 .zen-app .zen-card.ok      { border-top-color: var(--ok) !important; }
 .zen-app .zen-card.go      { border-top-color: var(--err) !important; }
@@ -403,10 +420,11 @@
   flex-direction: row !important;
   align-items: center !important;
   gap: 10px !important;
-  padding: 14px 18px !important;
+  padding: 16px 20px !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   color: var(--g700) !important;
+  background: var(--g0) !important;
 }
 .zen-app .zen-alert.error {
   color: var(--err) !important;
@@ -425,6 +443,8 @@
 
 @media (max-width: 900px) {
   .zen-app { padding: 12px !important; }
+  .zen-app .zen-summary { flex-wrap: wrap !important; }
+  .zen-app .zen-card { flex: 1 1 calc(50% - 12px) !important; min-width: 140px !important; }
   .zen-app .zen-toolbar { flex-direction: column !important; align-items: stretch !important; }
   .zen-app .zen-toolbar-right { justify-content: space-between !important; }
 }
@@ -630,15 +650,22 @@
     }
 
     function showStatus(type, message) {
+      if (!message) {
+        hideStatus();
+        return;
+      }
       el.statusMsg.hidden = false;
+      el.statusMsg.style.display = 'flex';
       el.statusMsg.className = 'zen-alert' + (type === 'error' ? ' error' : '');
       el.statusMsg.innerHTML = (type === 'loading' ? '<span class="zen-spin"></span>' : '') + '<span>' + escapeHtml(message) + '</span>';
       el.resultsTable.hidden = true;
-      el.summaryBar.hidden = true;
+      el.resultsTable.style.display = 'none';
     }
 
     function hideStatus() {
       el.statusMsg.hidden = true;
+      el.statusMsg.style.display = 'none';
+      el.statusMsg.innerHTML = '';
     }
 
     // ---- Carga de Grupos ----
@@ -1000,6 +1027,7 @@
       el.sumCargo.textContent = counts.cargo;
       el.sumMachine.textContent = counts.machine;
       el.summaryBar.hidden = false;
+      el.summaryBar.style.display = 'flex';
     }
 
     function cellTime(ms, now, thresholdHours, explicitErrorText) {
@@ -1018,8 +1046,9 @@
 
       if (visible.length === 0) {
         el.resultsTable.hidden = true;
-        showStatus(null, '');
+        el.resultsTable.style.display = 'none';
         el.statusMsg.hidden = false;
+        el.statusMsg.style.display = 'flex';
         el.statusMsg.className = 'zen-alert';
         el.statusMsg.innerHTML = '<span>No hay activos que coincidan con los filtros actuales.</span>';
         return;
@@ -1060,6 +1089,7 @@
 
       el.resultsTable.innerHTML = thead + tbody;
       el.resultsTable.hidden = false;
+      el.resultsTable.style.display = '';
     }
 
     function exportToCSV() {
